@@ -71,26 +71,58 @@ input[type="text"] {
 </div>
 
 <script>
-// QUESTION BANK
+// QUESTION BANK (MORE DETAILED ANSWERS)
 const questions = [
-{q:"Calculate 25% of 240.", type:"text", a:"60", topic:"percentages"},
-{q:"Explain what a metaphor is.", type:"text", a:"comparison", topic:"writing"},
-{q:"Write the word equation for photosynthesis.", type:"text", a:"carbon dioxide", topic:"photosynthesis"},
-{q:"Convert 5 x 10^3 into a normal number.", type:"text", a:"5000", topic:"standard form"},
-{q:"Explain how enzymes speed up reactions.", type:"text", a:"lower", topic:"enzymes"},
-{q:"Define inaccuracy in an experiment.", type:"text", a:"error", topic:"accuracy"},
-{q:"Name the organ responsible for filtering blood.", type:"text", a:"kidney", topic:"organs"},
-{q:"What is the function of red blood cells?", type:"text", a:"oxygen", topic:"blood"},
-{q:"What do white blood cells do?", type:"text", a:"fight", topic:"blood"},
-{q:"What is plasma?", type:"text", a:"liquid", topic:"blood"},
-{q:"Calculate 10% of 450.", type:"text", a:"45", topic:"percentages"},
-{q:"Give one example of a persuasive writing method.", type:"text", a:"rhetorical", topic:"writing"},
-{q:"What gas is released during photosynthesis?", type:"text", a:"oxygen", topic:"photosynthesis"},
-{q:"Convert 3 x 10^4.", type:"text", a:"30000", topic:"standard form"},
-{q:"What happens if enzymes get too hot?", type:"text", a:"denature", topic:"enzymes"},
-{q:"How can you improve accuracy in experiments?", type:"text", a:"repeat", topic:"accuracy"},
-{q:"What does the heart do?", type:"text", a:"pump", topic:"organs"},
-{q:"What do platelets do?", type:"text", a:"clot", topic:"blood"},
+{
+q:"Explain the function of red blood cells.",
+keywords:["oxygen","transport"],
+topic:"blood"
+},
+{
+q:"Describe how enzymes speed up chemical reactions.",
+keywords:["lower","activation energy"],
+topic:"enzymes"
+},
+{
+q:"Explain what happens during photosynthesis.",
+keywords:["carbon dioxide","water","glucose","oxygen"],
+topic:"photosynthesis"
+},
+{
+q:"Describe the role of the heart.",
+keywords:["pump","blood"],
+topic:"organs"
+},
+{
+q:"Explain what plasma does in blood.",
+keywords:["transport","nutrients","waste"],
+topic:"blood"
+},
+{
+q:"Explain how to improve accuracy in an experiment.",
+keywords:["repeat","average","measure"],
+topic:"accuracy"
+},
+{
+q:"What is standard form in maths?",
+keywords:["10","power"],
+topic:"standard form"
+},
+{
+q:"Explain what a metaphor is in writing.",
+keywords:["comparison","not like"],
+topic:"writing"
+},
+{
+q:"Explain the function of white blood cells.",
+keywords:["fight","infection"],
+topic:"blood"
+},
+{
+q:"Describe the function of platelets.",
+keywords:["clot","bleeding"],
+topic:"blood"
+}
 ];
 
 // VARIABLES
@@ -99,7 +131,7 @@ let currentIndex = 0;
 let score = 0;
 let weakTopics = {};
 
-// INIT
+// START
 function startQuiz() {
     quizSet = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
     currentIndex = 0;
@@ -110,12 +142,11 @@ function startQuiz() {
 
 function showQuestion() {
     const q = quizSet[currentIndex];
-    const quizDiv = document.getElementById("quiz");
 
-    quizDiv.innerHTML = `
+    document.getElementById("quiz").innerHTML = `
         <div class="question-box" id="box">
             <p><strong>Question ${currentIndex + 1}/10:</strong> ${q.q}</p>
-            <input type="text" id="answer">
+            <textarea id="answer" rows="4" placeholder="Write a full answer..."></textarea>
         </div>
     `;
 
@@ -124,21 +155,33 @@ function showQuestion() {
     document.getElementById("nextBtn").classList.add("hidden");
 }
 
+function checkKeywords(answer, keywords) {
+    let matches = 0;
+
+    keywords.forEach(k => {
+        if (answer.includes(k)) matches++;
+    });
+
+    // require at least half the keywords
+    return matches >= Math.ceil(keywords.length / 2);
+}
+
 function submitAnswer() {
     const q = quizSet[currentIndex];
     const userAnswer = document.getElementById("answer").value.toLowerCase();
     const box = document.getElementById("box");
 
-    let correct = userAnswer.includes(q.a);
+    let correct = checkKeywords(userAnswer, q.keywords);
 
     if (correct) {
         box.classList.add("correct");
         score++;
-        document.getElementById("feedback").innerHTML = "✅ Correct!";
+        document.getElementById("feedback").innerHTML = "✅ Good answer!";
     } else {
         box.classList.add("wrong");
+
         document.getElementById("feedback").innerHTML =
-            `❌ Correct answer: ${q.a}`;
+            `❌ You needed to include ideas like: ${q.keywords.join(", ")}`;
 
         weakTopics[q.topic] = (weakTopics[q.topic] || 0) + 1;
     }
@@ -171,7 +214,7 @@ function showResults() {
     let topics = Object.keys(weakTopics);
 
     if (topics.length === 0) {
-        advice = "Excellent! No major weak areas 🎉";
+        advice = "Excellent understanding 🎉";
     } else {
         advice += topics.join(", ");
     }
@@ -181,10 +224,10 @@ function showResults() {
     document.getElementById("nextBtn").classList.add("hidden");
 
     document.getElementById("final").innerHTML = `
-        <h2>Final Score: ${score}/10</h2>
+        <h2>Score: ${score}/10</h2>
         <h3>Grade: ${grade}</h3>
         <p>${advice}</p>
-        <button onclick="startQuiz()">Play Again</button>
+        <button onclick="startQuiz()">Retry</button>
     `;
 }
 
