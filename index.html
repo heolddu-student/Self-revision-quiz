@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Quiz</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1 { text-align: center; }
+
+.question-box {
+    padding: 20px;
+    border-radius: 10px;
+    background: #f5f7fb;
+    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.correct { background: #c8f7c5; }
+.wrong { background: #f7c5c5; }
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #667eea;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover { background: #5a67d8; }
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+}
+
+.hidden { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Smart Quiz</h1>
+
+<div id="quiz"></div>
+<button id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
+<button id="nextBtn" class="hidden" onclick="nextQuestion()">Next Question</button>
+
+<div id="feedback"></div>
+<div id="final"></div>
+</div>
+
+<script>
+// QUESTION BANK
+const questions = [
+{q:"Calculate 25% of 240.", type:"text", a:"60", topic:"percentages"},
+{q:"Explain what a metaphor is.", type:"text", a:"comparison", topic:"writing"},
+{q:"Write the word equation for photosynthesis.", type:"text", a:"carbon dioxide", topic:"photosynthesis"},
+{q:"Convert 5 x 10^3 into a normal number.", type:"text", a:"5000", topic:"standard form"},
+{q:"Explain how enzymes speed up reactions.", type:"text", a:"lower", topic:"enzymes"},
+{q:"Define inaccuracy in an experiment.", type:"text", a:"error", topic:"accuracy"},
+{q:"Name the organ responsible for filtering blood.", type:"text", a:"kidney", topic:"organs"},
+{q:"What is the function of red blood cells?", type:"text", a:"oxygen", topic:"blood"},
+{q:"What do white blood cells do?", type:"text", a:"fight", topic:"blood"},
+{q:"What is plasma?", type:"text", a:"liquid", topic:"blood"},
+{q:"Calculate 10% of 450.", type:"text", a:"45", topic:"percentages"},
+{q:"Give one example of a persuasive writing method.", type:"text", a:"rhetorical", topic:"writing"},
+{q:"What gas is released during photosynthesis?", type:"text", a:"oxygen", topic:"photosynthesis"},
+{q:"Convert 3 x 10^4.", type:"text", a:"30000", topic:"standard form"},
+{q:"What happens if enzymes get too hot?", type:"text", a:"denature", topic:"enzymes"},
+{q:"How can you improve accuracy in experiments?", type:"text", a:"repeat", topic:"accuracy"},
+{q:"What does the heart do?", type:"text", a:"pump", topic:"organs"},
+{q:"What do platelets do?", type:"text", a:"clot", topic:"blood"},
+];
+
+// VARIABLES
+let quizSet = [];
+let currentIndex = 0;
+let score = 0;
+let weakTopics = {};
+
+// INIT
+function startQuiz() {
+    quizSet = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+    currentIndex = 0;
+    score = 0;
+    weakTopics = {};
+    showQuestion();
+}
+
+function showQuestion() {
+    const q = quizSet[currentIndex];
+    const quizDiv = document.getElementById("quiz");
+
+    quizDiv.innerHTML = `
+        <div class="question-box" id="box">
+            <p><strong>Question ${currentIndex + 1}/10:</strong> ${q.q}</p>
+            <input type="text" id="answer">
+        </div>
+    `;
+
+    document.getElementById("feedback").innerHTML = "";
+    document.getElementById("submitBtn").classList.remove("hidden");
+    document.getElementById("nextBtn").classList.add("hidden");
+}
+
+function submitAnswer() {
+    const q = quizSet[currentIndex];
+    const userAnswer = document.getElementById("answer").value.toLowerCase();
+    const box = document.getElementById("box");
+
+    let correct = userAnswer.includes(q.a);
+
+    if (correct) {
+        box.classList.add("correct");
+        score++;
+        document.getElementById("feedback").innerHTML = "✅ Correct!";
+    } else {
+        box.classList.add("wrong");
+        document.getElementById("feedback").innerHTML =
+            `❌ Correct answer: ${q.a}`;
+
+        weakTopics[q.topic] = (weakTopics[q.topic] || 0) + 1;
+    }
+
+    document.getElementById("submitBtn").classList.add("hidden");
+    document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < 10) {
+        showQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function getGrade(score) {
+    if (score >= 9) return "A";
+    if (score >= 7) return "B";
+    if (score >= 5) return "C";
+    if (score >= 3) return "D";
+    return "F";
+}
+
+function showResults() {
+    const grade = getGrade(score);
+
+    let advice = "Revise: ";
+    let topics = Object.keys(weakTopics);
+
+    if (topics.length === 0) {
+        advice = "Excellent! No major weak areas 🎉";
+    } else {
+        advice += topics.join(", ");
+    }
+
+    document.getElementById("quiz").innerHTML = "";
+    document.getElementById("submitBtn").classList.add("hidden");
+    document.getElementById("nextBtn").classList.add("hidden");
+
+    document.getElementById("final").innerHTML = `
+        <h2>Final Score: ${score}/10</h2>
+        <h3>Grade: ${grade}</h3>
+        <p>${advice}</p>
+        <button onclick="startQuiz()">Play Again</button>
+    `;
+}
+
+startQuiz();
+</script>
+
+</body>
+</html>
